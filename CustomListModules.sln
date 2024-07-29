@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CustomListModules", "CustomListModules\CustomListModules.vcxproj", "{71A5FC75-A3EF-4CD0-96CC-309D05A94398}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71A5FC75-A3EF-4CD0-96CC-309D05A94398}.Debug|x64.ActiveCfg = Debug|x64
+		{71A5FC75-A3EF-4CD0-96CC-309D05A94398}.Debug|x64.Build.0 = Debug|x64
+		{71A5FC75-A3EF-4CD0-96CC-309D05A94398}.Release|x64.ActiveCfg = Release|x64
+		{71A5FC75-A3EF-4CD0-96CC-309D05A94398}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C02E2731-09BB-4CD0-8E2C-4349B5801734}
+	EndGlobalSection
+EndGlobal
