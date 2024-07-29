@@ -61,6 +61,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
+      <DisableSpecificWarnings>4514;4710;4711;5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -79,6 +80,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
+      <DisableSpecificWarnings>4514;4710;4711;5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
