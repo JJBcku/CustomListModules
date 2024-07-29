@@ -1,35 +1,35 @@
-export module ListTemplates.Common.Object;
+export module ListTemplates.CommonVectorObject;
 
 import std;
 export import ListTemplates.IDObject;
 
 export template<class T>
-class ListObject
+class CommonVectorObject
 {
 public:
-	ListObject(const IDObject<T>& objectID, const T& object) : _objectID(objectID), _object(object)
+	CommonVectorObject(const IDObject<T>& objectID, const T& object) : _objectID(objectID), _object(object)
 	{
 	}
 
-	ListObject(const IDObject<T>& objectID, T&& object) noexcept : _objectID(objectID), _object(std::move(object))
+	CommonVectorObject(const IDObject<T>& objectID, T&& object) noexcept : _objectID(objectID), _object(std::move(object))
 	{
 	}
 
-	ListObject(const ListObject<T>& other) noexcept : _objectID(other._objectID), _object(other._object)
+	CommonVectorObject(const CommonVectorObject<T>& other) noexcept : _objectID(other._objectID), _object(other._object)
 	{
 	}
 
-	ListObject(ListObject<T>&& other) noexcept : _objectID(std::move(other._objectID)), _object(std::move(other._object))
+	CommonVectorObject(CommonVectorObject<T>&& other) noexcept : _objectID(std::move(other._objectID)), _object(std::move(other._object))
 	{
 	}
 
-	ListObject<T>& operator=(const ListObject<T>& other)
+	CommonVectorObject<T>& operator=(const CommonVectorObject<T>& other)
 	{
 		_objectID = other._objectID;
 		_object = other._object;
 	}
 
-	ListObject<T>& operator=(ListObject<T>&& other)
+	CommonVectorObject<T>& operator=(CommonVectorObject<T>&& other)
 	{
 		_objectID = std::move(other._objectID);
 		_object = std::move(other._object);
@@ -70,8 +70,8 @@ public:
 	bool operator==(bool has_value) const { return _object.has_value() == has_value; }
 	bool operator==(const IDObject<T>& ID) const { return ID == _objectID; }
 
-	std::strong_ordering operator<=>(const ListObject<T>&) const noexcept = default;
-	bool operator==(const ListObject<T>&) const noexcept = default;
+	std::strong_ordering operator<=>(const CommonVectorObject<T>&) const noexcept = default;
+	bool operator==(const CommonVectorObject<T>&) const noexcept = default;
 
 	bool operator==(const T& other) const noexcept { return _object == other; };
 	bool operator==(const std::optional<T>& other) const noexcept { return _object == other; };

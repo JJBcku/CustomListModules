@@ -2,7 +2,7 @@ export module ListTemplates.OrderIndependentDeletionStack;
 
 import std;
 export import ListTemplates.IDObject;
-import ListTemplates.Common.Object;
+import ListTemplates.CommonVectorObject;
 
 constexpr size_t listTemplateDefaultReserve = 0x10;
 
@@ -331,7 +331,7 @@ public:
 private:
 	IDType _nextID;
 	IDType _vectorID;
-	std::vector<ListObject<T>> _list;
+	std::vector<CommonVectorObject<T>> _list;
 	std::vector<size_t> _deletedList;
 	std::vector<IDObject<T>> _additionOrder;
 	char padding[16 - (sizeof(_additionOrder) % 8)];

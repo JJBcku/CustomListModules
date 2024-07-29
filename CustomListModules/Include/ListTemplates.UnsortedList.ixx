@@ -4,7 +4,7 @@ export module ListTemplates.UnsortedList;
 
 import std;
 export import ListTemplates.IDObject;
-import ListTemplates.Common.Object;
+import ListTemplates.CommonVectorObject;
 
 constexpr size_t listTemplateDefaultReserve = 0x10;
 
@@ -374,7 +374,7 @@ public:
 protected:
 	IDType _nextID;
 	IDType _vectorID;
-	std::vector<ListObject<T>> _list;
+	std::vector<CommonVectorObject<T>> _list;
 	std::vector<size_t> _deletedList;
 
 	IDType GetNextId()
