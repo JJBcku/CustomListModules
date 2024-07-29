@@ -189,7 +189,7 @@ public:
 		if (_deletedList.empty())
 			return;
 
-		std::vector<ListObject<T>> tempList;
+		std::vector<CommonVectorObject<T>> tempList;
 
 		if (addToReserved)
 		{

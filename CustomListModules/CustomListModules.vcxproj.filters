@@ -33,7 +33,7 @@
     <ClCompile Include="Include\ListTemplates.UnsortedList.ixx">
       <Filter>Source Files\Include</Filter>
     </ClCompile>
-    <ClCompile Include="NoInclude\ListTemplates.Common.Object.ixx">
+    <ClCompile Include="NoInclude\ListTemplates.CommonVectorObject.ixx">
       <Filter>Source Files\DoNotInclude</Filter>
     </ClCompile>
   </ItemGroup>

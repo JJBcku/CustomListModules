@@ -1,7 +1,7 @@
 export module ListTemplates.IterativeUnsortedList;
 
 export import ListTemplates.UnsortedList;
-import ListTemplates.Common.Object;
+import ListTemplates.CommonVectorObject;
 import ListTemplates.IDObject;
 import std;
 

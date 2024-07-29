@@ -92,7 +92,7 @@
     <ClCompile Include="Include\ListTemplates.IterativeUnsortedList.ixx" />
     <ClCompile Include="Include\ListTemplates.OrderIndependentDeletionStack.ixx" />
     <ClCompile Include="Include\ListTemplates.UnsortedList.ixx" />
-    <ClCompile Include="NoInclude\ListTemplates.Common.Object.ixx" />
+    <ClCompile Include="NoInclude\ListTemplates.CommonVectorObject.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
