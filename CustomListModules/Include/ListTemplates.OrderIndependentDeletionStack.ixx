@@ -4,28 +4,20 @@ import std;
 export import ListTemplates.IDObject;
 import ListTemplates.CommonVectorObject;
 
-constexpr size_t listTemplateDefaultReserve = 0x10;
-
 export template<class T>
 class OrderIndependentDeletionStack
 {
 public:
-	OrderIndependentDeletionStack(size_t reserve)
+	OrderIndependentDeletionStack(size_t initialCapacity)
 	{
 		_nextID = std::numeric_limits<IDType>::lowest();
 		_vectorID = std::numeric_limits<IDType>::lowest();
 
-		if (reserve != 0)
+		if (initialCapacity != 0)
 		{
-			_list.reserve(reserve);
-			_deletedList.reserve(reserve);
-			_additionOrder.reserve(reserve);
-		}
-		else
-		{
-			_list.reserve(listTemplateDefaultReserve);
-			_deletedList.reserve(listTemplateDefaultReserve);
-			_additionOrder.reserve(listTemplateDefaultReserve);
+			_list.reserve(initialCapacity);
+			_deletedList.reserve(initialCapacity);
+			_additionOrder.reserve(initialCapacity);
 		}
 	}
 
@@ -40,7 +32,7 @@ public:
 	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack&) noexcept = delete;
 	OrderIndependentDeletionStack& operator=(OrderIndependentDeletionStack&&) noexcept = default;
 
-	IDObject<T> AddUniqueObject(const T& value, size_t add)
+	IDObject<T> AddUniqueObject(const T& value, size_t addOnReserve)
 	{
 		auto found = std::find(_list.cbegin(), _list.cend(), value);
 
@@ -61,7 +53,7 @@ public:
 			}
 			else
 			{
-				CheckCapacity(add);
+				CheckCapacity(addOnReserve);
 
 				_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), value);
 				auto ID = _list.back().GetObjectID();
@@ -71,7 +63,7 @@ public:
 		}
 	}
 
-	IDObject<T> AddUniqueObject(T&& value, size_t add)
+	IDObject<T> AddUniqueObject(T&& value, size_t addOnReserve)
 	{
 		auto found = std::find(_list.cbegin(), _list.cend(), value);
 
@@ -92,7 +84,7 @@ public:
 			}
 			else
 			{
-				CheckCapacity(add);
+				CheckCapacity(addOnReserve);
 
 				_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), std::move(value));
 				auto ID = _list.back().GetObjectID();
@@ -102,7 +94,7 @@ public:
 		}
 	}
 
-	IDObject<T> AddObject(const T& value, size_t add)
+	IDObject<T> AddObject(const T& value, size_t addOnReserve)
 	{
 		if (!_deletedList.empty())
 		{
@@ -115,7 +107,7 @@ public:
 		}
 		else
 		{
-			CheckCapacity(add);
+			CheckCapacity(addOnReserve);
 
 			_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), value);
 			auto ID = _list.back().GetObjectID();
@@ -124,7 +116,7 @@ public:
 		}
 	}
 
-	IDObject<T> AddObject(T&& value, size_t add)
+	IDObject<T> AddObject(T&& value, size_t addOnReserve)
 	{
 		if (!_deletedList.empty())
 		{
@@ -137,7 +129,7 @@ public:
 		}
 		else
 		{
-			CheckCapacity(add);
+			CheckCapacity(addOnReserve);
 
 			_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), std::move(value));
 			auto ID = _list.back().GetObjectID();
@@ -186,31 +178,34 @@ public:
 	size_t GetUnusedCapacity() const { return GetCapacity() - GetSize(); }
 	size_t GetUnusedAndDeletedCapacity() const { return GetCapacity() - GetUsedSize(); }
 
-	void ShrinkToFit(size_t reserve, bool addToReserved)
+	void ShrinkToFit(size_t changeToCapacity, bool addToCapacity) noexcept(std::is_nothrow_move_constructible_v<T> || std::is_nothrow_copy_constructible_v<T>)
 	{
 		if (_deletedList.empty())
 			return;
 
+		_list.shrink_to_fit();
+
 		std::vector<CommonVectorObject<T>> tempList;
 
-		if (addToReserved)
+		if (addToCapacity)
 		{
-			size_t fullres = GetUsedSize() + reserve;
+			size_t fullres = GetUsedSize() + changeToCapacity;
 
-			if (fullres < reserve)
+			if (fullres < changeToCapacity)
 				throw std::runtime_error("UnsortedList ShrinkToFit Error: reservation amount overflowed!");
 
 			tempList.reserve(fullres);
 		}
 		else
 		{
-			if (reserve > GetUsedSize())
+			size_t usedSize = GetUsedSize();
+			if (changeToCapacity > usedSize)
 			{
-				tempList.reserve(reserve);
+				tempList.reserve(changeToCapacity);
 			}
 			else
 			{
-				tempList.reserve(GetUsedSize());
+				tempList.reserve(usedSize);
 			}
 		}
 
@@ -218,19 +213,30 @@ public:
 		{
 			if (object.HasValue())
 			{
-				if constexpr (std::is_move_constructible<T>::value)
+				if constexpr (std::is_nothrow_move_constructible_v<T>)
 				{
 					tempList.push_back(std::move(object));
 				}
 				else
 				{
-					tempList.push_back(object);
+					if constexpr (std::is_nothrow_copy_constructible_v<T>)
+					{
+						tempList.push_back(object);
+					}
+					else
+					{
+						if constexpr (std::is_move_constructible_v<T>)
+						{
+							tempList.push_back(std::move(object));
+						}
+						else
+						{
+							tempList.push_back(object);
+						}
+					}
 				}
 			}
 		}
-
-		if (tempList.capacity() == 0)
-			tempList.reserve(listTemplateDefaultReserve);
 
 		_list = std::move(tempList);
 		_deletedList.clear();
@@ -298,7 +304,7 @@ public:
 		}
 	}
 
-	void Reset(size_t reserve)
+	void Reset(size_t capacityAfterReset)
 	{
 		_list.clear();
 		_deletedList.clear();
@@ -313,17 +319,11 @@ public:
 
 		_vectorID++;
 
-		if (reserve != 0)
+		if (capacityAfterReset != 0)
 		{
-			_list.reserve(reserve);
-			_deletedList.reserve(reserve);
-			_additionOrder.reserve(reserve);
-		}
-		else
-		{
-			_list.reserve(listTemplateDefaultReserve);
-			_deletedList.reserve(listTemplateDefaultReserve);
-			_additionOrder.reserve(listTemplateDefaultReserve);
+			_list.reserve(capacityAfterReset);
+			_deletedList.reserve(capacityAfterReset);
+			_additionOrder.reserve(capacityAfterReset);
 		}
 	}
 
@@ -346,26 +346,30 @@ private:
 		return ret;
 	}
 
-	void ReserveAdditional(size_t add)
+	void ReserveAdditional(size_t addToCapacity)
 	{
 		auto size = _list.capacity();
 
-		_list.reserve(size + add);
-		_deletedList.reserve(size + add);
-		_additionOrder.reserve(size + add);
+		_list.reserve(size + addToCapacity);
+		_deletedList.reserve(size + addToCapacity);
+		_additionOrder.reserve(size + addToCapacity);
 	}
 
-	void CheckCapacity(size_t add)
+	void CheckCapacity(size_t addOnReserve)
 	{
 		if (_list.capacity() == _list.size())
 		{
-			if (add == 0)
+			if (addOnReserve == 0)
 			{
-				ReserveAdditional(_list.capacity());
+				size_t capacity = _list.capacity();
+				if (capacity != 0)
+					ReserveAdditional(capacity);
+				else
+					ReserveAdditional(1);
 			}
 			else
 			{
-				ReserveAdditional(add);
+				ReserveAdditional(addOnReserve);
 			}
 		}
 	}
