@@ -20,6 +20,9 @@ public:
 			_list.reserve(initialCapacity);
 			_deletedList.reserve(initialCapacity);
 		}
+
+		for (size_t i = 0; i < sizeof(_padding); i++)
+			_padding[i] = 0;
 	}
 
 	~UnsortedList()
@@ -27,10 +30,39 @@ public:
 
 	}
 
-	UnsortedList(const UnsortedList<T>&) noexcept = delete;
+	template<class U>
+		requires !std::is_same_v<T, U> || !std::is_copy_constructible_v<std::vector<std::optional<U>>>
+	UnsortedList(const UnsortedList<U>&) noexcept = delete;
+
+	template<class U>
+		requires std::is_same_v<T, U> && std::is_copy_constructible_v<std::vector<std::optional<U>>>
+	UnsortedList(const UnsortedList<U>& rhs) noexcept : _nextID(rhs._nextID), _vectorID(rhs._vectorID), _list(rhs._list), _deletedList(rhs._deletedList)
+	{
+		for (size_t i = 0; i < sizeof(_padding); i++)
+			_padding[i] = 0;
+	}
+
 	UnsortedList(UnsortedList<T>&&) noexcept = default;
 
-	UnsortedList<T>& operator=(const UnsortedList<T>&) noexcept = delete;
+	template<class U>
+		requires !std::is_same_v<T, U> || !std::is_copy_assignable_v<std::vector<std::optional<U>>>
+	UnsortedList<T>& operator=(const UnsortedList<U>&) noexcept = delete;
+
+	template<class U>
+		requires std::is_same_v<T, U> && std::is_copy_assignable_v<std::vector<std::optional<U>>>
+	UnsortedList<T>& operator=(const UnsortedList<U>& rhs) noexcept
+	{
+		_nextID = rhs._nextID;
+		_vectorID = rhs._vectorID;
+		_list = rhs._list;
+		_deletedList = rhs._deletedList;
+
+		for (size_t i = 0; i < sizeof(_padding); i++)
+			_padding[i] = 0;
+
+		return *this;
+	}
+
 	UnsortedList<T>& operator=(UnsortedList<T>&&) noexcept = default;
 
 	IDObject<T> AddUniqueObject(const T& value, size_t addOnReserve)
@@ -378,6 +410,7 @@ protected:
 	IDType _vectorID;
 	std::vector<CommonVectorObject<T>> _list;
 	std::vector<size_t> _deletedList;
+	char _padding[16 - (((sizeof(_deletedList) << 1) + (sizeof(_nextID) << 1)) % 8)];
 
 	IDType GetNextId()
 	{

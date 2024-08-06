@@ -19,6 +19,9 @@ public:
 			_deletedList.reserve(initialCapacity);
 			_additionOrder.reserve(initialCapacity);
 		}
+
+		for (size_t i = 0; i < sizeof(_padding); i++)
+			_padding[i] = 0;
 	}
 
 	~OrderIndependentDeletionStack()
@@ -26,10 +29,41 @@ public:
 
 	}
 
-	OrderIndependentDeletionStack(const OrderIndependentDeletionStack&) noexcept = delete;
+	template<class U>
+		requires !std::is_same_v<T, U> || !std::is_copy_constructible_v<std::vector<std::optional<U>>>
+	OrderIndependentDeletionStack(const OrderIndependentDeletionStack<U>&) noexcept = delete;
+
+	template<class U>
+		requires std::is_same_v<T, U> && std::is_copy_constructible_v<std::vector<std::optional<U>>>
+	OrderIndependentDeletionStack(const OrderIndependentDeletionStack<U>& rhs) noexcept : _nextID(rhs._nextID), _vectorID(rhs._vectorID), _list(rhs._list),
+		_deletedList(rhs._deletedList), _additionOrder(rhs._additionOrder)
+	{
+		for (size_t i = 0; i < sizeof(_padding); i++)
+			_padding[i] = 0;
+	}
+
 	OrderIndependentDeletionStack(OrderIndependentDeletionStack&&) noexcept = default;
 
-	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack&) noexcept = delete;
+	template<class U>
+		requires !std::is_same_v<T, U> || !std::is_copy_assignable_v<std::vector<std::optional<U>>>
+	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack<U>&) noexcept = delete;
+
+	template<class U>
+		requires std::is_same_v<T, U> && std::is_copy_assignable_v<std::vector<std::optional<U>>>
+	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack<U>& rhs) noexcept
+	{
+		_nextID = rhs._nextID;
+		_vectorID = rhs._vectorID;
+		_list = rhs._list;
+		_deletedList = rhs._deletedList;
+		_additionOrder = rhs._additionOrder;
+
+		for (size_t i = 0; i < sizeof(_padding); i++)
+			_padding[i] = 0;
+
+		return *this;
+	}
+
 	OrderIndependentDeletionStack& operator=(OrderIndependentDeletionStack&&) noexcept = default;
 
 	IDObject<T> AddUniqueObject(const T& value, size_t addOnReserve)
@@ -334,7 +368,7 @@ private:
 	std::vector<CommonVectorObject<T>> _list;
 	std::vector<size_t> _deletedList;
 	std::vector<IDObject<T>> _additionOrder;
-	char padding[16 - (sizeof(_additionOrder) % 8)];
+	char _padding[16 - (((sizeof(_additionOrder) * 3) + (sizeof(_nextID) << 1)) % 8)];
 
 	IDType GetNextId()
 	{
