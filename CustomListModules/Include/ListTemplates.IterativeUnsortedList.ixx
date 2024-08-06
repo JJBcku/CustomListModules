@@ -11,6 +11,10 @@ class IterativeUnsortedList : public UnsortedList<T>
 public:
 	IterativeUnsortedList(size_t reserve) : UnsortedList<T>(reserve) {}
 
+	IterativeUnsortedList(const IterativeUnsortedList&) noexcept = delete;
+
+	IterativeUnsortedList& operator=(const IterativeUnsortedList&) noexcept = delete;
+
 	std::optional<T>& GetObjectOptional(size_t index)
 	{
 		if (index >= UnsortedList<T>::_list.size())
