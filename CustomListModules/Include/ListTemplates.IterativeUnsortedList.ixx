@@ -11,29 +11,11 @@ class IterativeUnsortedList : public UnsortedList<T>
 public:
 	IterativeUnsortedList(size_t reserve) : UnsortedList<T>(reserve) {}
 
-	template<class U>
-		requires !std::is_same_v<T, U> || !std::is_copy_constructible_v<std::vector<std::optional<U>>>
-	IterativeUnsortedList(const IterativeUnsortedList<U>&) noexcept = delete;
+	IterativeUnsortedList(const IterativeUnsortedList<T>&) noexcept = default;
+	IterativeUnsortedList(IterativeUnsortedList<T>&&) noexcept = default;
 
-	template<class U>
-		requires std::is_same_v<T, U> && std::is_copy_constructible_v<std::vector<std::optional<U>>>
-	IterativeUnsortedList(const IterativeUnsortedList<U>& rhs) noexcept : UnsortedList<T>(rhs) {}
-
-	IterativeUnsortedList(IterativeUnsortedList&&) noexcept = default;
-
-	template<class U>
-		requires !std::is_same_v<T, U> || !std::is_copy_assignable_v<std::vector<std::optional<U>>>
-	IterativeUnsortedList& operator=(const IterativeUnsortedList<U>&) noexcept = delete;
-
-	template<class U>
-		requires std::is_same_v<T, U> && std::is_copy_assignable_v<std::vector<std::optional<U>>>
-	IterativeUnsortedList& operator=(const IterativeUnsortedList<U>& rhs) noexcept
-	{
-		static_cast<UnsortedList<T>>(*this) = static_cast<UnsortedList<U>>(rhs);
-		return *this;
-	}
-
-	IterativeUnsortedList& operator=(IterativeUnsortedList&&) noexcept = default;
+	IterativeUnsortedList& operator=(const IterativeUnsortedList<T>&) noexcept = default;
+	IterativeUnsortedList& operator=(IterativeUnsortedList<T>&&) noexcept = default;
 
 	std::optional<T>& GetObjectOptional(size_t index)
 	{

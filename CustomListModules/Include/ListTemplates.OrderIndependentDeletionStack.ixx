@@ -29,42 +29,11 @@ public:
 
 	}
 
-	template<class U>
-		requires !std::is_same_v<T, U> || !std::is_copy_constructible_v<std::vector<std::optional<U>>>
-	OrderIndependentDeletionStack(const OrderIndependentDeletionStack<U>&) noexcept = delete;
+	OrderIndependentDeletionStack(const OrderIndependentDeletionStack<T>&) noexcept = default;
+	OrderIndependentDeletionStack(OrderIndependentDeletionStack<T>&&) noexcept = default;
 
-	template<class U>
-		requires std::is_same_v<T, U> && std::is_copy_constructible_v<std::vector<std::optional<U>>>
-	OrderIndependentDeletionStack(const OrderIndependentDeletionStack<U>& rhs) noexcept : _nextID(rhs._nextID), _vectorID(rhs._vectorID), _list(rhs._list),
-		_deletedList(rhs._deletedList), _additionOrder(rhs._additionOrder)
-	{
-		for (size_t i = 0; i < sizeof(_padding); i++)
-			_padding[i] = 0;
-	}
-
-	OrderIndependentDeletionStack(OrderIndependentDeletionStack&&) noexcept = default;
-
-	template<class U>
-		requires !std::is_same_v<T, U> || !std::is_copy_assignable_v<std::vector<std::optional<U>>>
-	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack<U>&) noexcept = delete;
-
-	template<class U>
-		requires std::is_same_v<T, U> && std::is_copy_assignable_v<std::vector<std::optional<U>>>
-	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack<U>& rhs) noexcept
-	{
-		_nextID = rhs._nextID;
-		_vectorID = rhs._vectorID;
-		_list = rhs._list;
-		_deletedList = rhs._deletedList;
-		_additionOrder = rhs._additionOrder;
-
-		for (size_t i = 0; i < sizeof(_padding); i++)
-			_padding[i] = 0;
-
-		return *this;
-	}
-
-	OrderIndependentDeletionStack& operator=(OrderIndependentDeletionStack&&) noexcept = default;
+	OrderIndependentDeletionStack& operator=(const OrderIndependentDeletionStack<T>&) noexcept = default;
+	OrderIndependentDeletionStack& operator=(OrderIndependentDeletionStack<T>&&) noexcept = default;
 
 	IDObject<T> AddUniqueObject(const T& value, size_t addOnReserve)
 	{
