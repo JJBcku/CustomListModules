@@ -3,6 +3,34 @@ export module ListTemplates.CommonVectorObject;
 import std;
 export import ListTemplates.IDObject;
 
+template<class T, class U>
+concept is_strong_ordered = requires(T a, U b)
+{
+	std::is_same_v<T, U> == true;
+	{ a <=> b } -> std::same_as<std::strong_ordering>;
+};
+
+template<class T, class U>
+concept is_weak_ordered = requires(T a, U b)
+{
+	std::is_same_v<T, U> == true;
+	{ a <=> b } -> std::same_as<std::weak_ordering>;
+};
+
+template<class T, class U>
+concept is_partial_ordered = requires(T a, U b)
+{
+	std::is_same_v<T, U> == true;
+	{ a <=> b } -> std::same_as<std::partial_ordering>;
+};
+
+template<class T, class U>
+concept is_three_way_comparable = requires()
+{
+	std::is_same_v<T, U>;
+	typename std::compare_three_way_result_t<T, U>;
+};
+
 export template<class T>
 class CommonVectorObject
 {
@@ -70,7 +98,27 @@ public:
 	bool operator==(bool has_value) const { return _object.has_value() == has_value; }
 	bool operator==(const IDObject<T>& ID) const { return ID == _objectID; }
 
-	std::strong_ordering operator<=>(const CommonVectorObject<T>&) const noexcept = default;
+	template <class U>
+		requires (is_three_way_comparable<T, U>)
+	std::compare_three_way_result_t<T, U> operator<=>(const CommonVectorObject<U>& rhs) const noexcept
+	{
+		if (_objectID != rhs._objectID)
+			return _objectID <=> rhs._objectID;
+		
+		if (_object.has_value())
+		{
+			if (rhs._object.has_value())
+				return _object.value() <=> rhs._object.value();
+
+			return std::compare_three_way_result_t<T, U>::greater;
+		}
+
+		if (rhs._object.has_value())
+			return std::compare_three_way_result_t<T, U>::less;
+
+		return std::compare_three_way_result_t<T, U>::equivalent;
+	}
+
 	bool operator==(const CommonVectorObject<T>&) const noexcept = default;
 
 	bool operator==(const T& other) const noexcept { return _object == other; };
