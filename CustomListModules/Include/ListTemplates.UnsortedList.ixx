@@ -13,7 +13,7 @@ public:
 	UnsortedList(size_t initialCapacity)
 	{
 		_nextID = std::numeric_limits<IDType>::lowest();
-		_vectorID = std::numeric_limits<IDType>::lowest();
+		_vectorID = GetNextVectorID();
 
 		if (initialCapacity != 0)
 		{
@@ -364,10 +364,7 @@ public:
 		_list.shrink_to_fit();
 		_deletedList.shrink_to_fit();
 
-		if (_vectorID == std::numeric_limits<IDType>::max())
-			throw std::runtime_error("UnsortedList Reset Error: vector ID overflow!");
-
-		_vectorID++;
+		_vectorID = GetNextVectorID();
 
 		if (capacityAfterReset != 0)
 		{
@@ -382,6 +379,16 @@ protected:
 	std::vector<CommonVectorObject<T>> _list;
 	std::vector<size_t> _deletedList;
 	char _padding[16 - (((sizeof(_deletedList) << 1) + (sizeof(_nextID) << 1)) % 8)];
+
+	static IDType _nextVectorID;
+
+	static IDType GetNextVectorID()
+	{
+		if (_nextVectorID == std::numeric_limits<IDType>::max())
+			throw std::runtime_error("UnsortedList::GetNextVectorID Error: Vector ID overflow!");
+
+		return _nextVectorID++;
+	}
 
 	IDType GetNextId()
 	{
@@ -420,3 +427,6 @@ protected:
 		}
 	}
 };
+
+template<class T>
+IDType UnsortedList<T>::_nextVectorID = std::numeric_limits<IDType>::lowest();

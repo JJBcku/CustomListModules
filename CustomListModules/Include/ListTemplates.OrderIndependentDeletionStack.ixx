@@ -11,7 +11,7 @@ public:
 	OrderIndependentDeletionStack(size_t initialCapacity)
 	{
 		_nextID = std::numeric_limits<IDType>::lowest();
-		_vectorID = std::numeric_limits<IDType>::lowest();
+		_vectorID = GetNextVectorID();
 
 		if (initialCapacity != 0)
 		{
@@ -317,10 +317,7 @@ public:
 		_deletedList.shrink_to_fit();
 		_additionOrder.shrink_to_fit();
 
-		if (_vectorID == std::numeric_limits<IDType>::max())
-			throw std::runtime_error("UnsortedList Reset Error: vector ID overflow!");
-
-		_vectorID++;
+		_vectorID = GetNextVectorID();
 
 		if (capacityAfterReset != 0)
 		{
@@ -338,6 +335,16 @@ private:
 	std::vector<size_t> _deletedList;
 	std::vector<IDObject<T>> _additionOrder;
 	char _padding[16 - (((sizeof(_additionOrder) * 3) + (sizeof(_nextID) << 1)) % 8)];
+
+	static IDType _nextVectorID;
+
+	static IDType GetNextVectorID()
+	{
+		if (_nextVectorID == std::numeric_limits<IDType>::max())
+			throw std::runtime_error("OrderIndependentDeletionStack::GetNextVectorID Error: Vector ID overflow!");
+
+		return _nextVectorID++;
+	}
 
 	IDType GetNextId()
 	{
@@ -377,3 +384,6 @@ private:
 		}
 	}
 };
+
+template<class T>
+IDType OrderIndependentDeletionStack<T>::_nextVectorID = std::numeric_limits<IDType>::lowest();
