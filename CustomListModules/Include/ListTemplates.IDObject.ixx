@@ -35,20 +35,20 @@ private:
 	IDSubobject<T> _vectorID;
 
 public:
-	IDObject(IDType objectID = std::numeric_limits<IDType>::max(), IDType vectorID = std::numeric_limits<IDType>::max()) : _objectID(objectID), _vectorID(vectorID) {}
-	IDObject(IDType objectID, IDSubobject<T> vectorID) : _objectID(objectID), _vectorID(vectorID) {}
-	IDObject(IDSubobject<T> objectID, size_t vectorID = std::numeric_limits<IDType>::max()) : _objectID(objectID), _vectorID(vectorID) {}
-	IDObject(IDSubobject<T> objectID, IDSubobject<T> vectorID) : _objectID(objectID), _vectorID(vectorID) {}
+	IDObject(IDType objectID = std::numeric_limits<IDType>::max(), IDType vectorID = std::numeric_limits<IDType>::max()) : _objectID(objectID), _vectorID(vectorID) {};
+	IDObject(IDType objectID, IDSubobject<T> vectorID) : _objectID(objectID), _vectorID(vectorID) {};
+	IDObject(IDSubobject<T> objectID, size_t vectorID = std::numeric_limits<IDType>::max()) : _objectID(objectID), _vectorID(vectorID) {};
+	IDObject(IDSubobject<T> objectID, IDSubobject<T> vectorID) : _objectID(objectID), _vectorID(vectorID) {};
 
 	IDObject(const IDObject& other) = default;
 	IDObject(IDObject&& other) noexcept = default;
 
-	IDObject<T>& operator=(const IDObject<T>& other) = default;
-	IDObject<T>& operator=(IDObject<T>&&) noexcept = default;
+	IDObject<T>& operator=(const IDObject<T>& rhs) = default;
+	IDObject<T>& operator=(IDObject<T>&& rhs) noexcept = default;
 
 	bool operator==(const IDObject<T>&) const noexcept = default;
 	std::strong_ordering operator<=>(const IDObject<T>&) const noexcept = default;
 
-	const IDSubobject<T>& GetObjectID() const { return _objectID; }
-	const IDSubobject<T>& GetVectorID() const { return _vectorID; }
+	const IDSubobject<T>& GetObjectID() const { return _objectID; };
+	const IDSubobject<T>& GetVectorID() const { return _vectorID; };
 };
