@@ -41,27 +41,27 @@ public:
 
 		if (found != _list.cend())
 		{
-			return found->GetObjectID();
+			return IDObject<T>(found->GetObjectID(), _vectorID);
 		}
 		else
 		{
 			if (!_deletedList.empty())
 			{
 				size_t pos = _deletedList.back();
-				_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), value);
+				_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), value);
 				_deletedList.pop_back();
 				auto ID = _list[pos].GetObjectID();
 				_additionOrder.push_back(ID);
-				return ID;
+				return IDObject<T>(ID, _vectorID);
 			}
 			else
 			{
 				CheckCapacity(addOnReserve);
 
-				_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), value);
+				_list.emplace_back(IDSubobject<T>(GetNextId()), value);
 				auto ID = _list.back().GetObjectID();
 				_additionOrder.push_back(ID);
-				return ID;
+				return IDObject<T>(ID, _vectorID);
 			}
 		}
 	}
@@ -72,27 +72,27 @@ public:
 
 		if (found != _list.cend())
 		{
-			return found->GetObjectID();
+			return IDObject<T>(found->GetObjectID(), _vectorID);
 		}
 		else
 		{
 			if (!_deletedList.empty())
 			{
 				size_t pos = _deletedList.back();
-				_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), std::move(value));
+				_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), std::move(value));
 				_deletedList.pop_back();
 				auto ID = _list[pos].GetObjectID();
 				_additionOrder.push_back(ID);
-				return ID;
+				return IDObject<T>(ID, _vectorID);
 			}
 			else
 			{
 				CheckCapacity(addOnReserve);
 
-				_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), std::move(value));
+				_list.emplace_back(IDSubobject<T>(GetNextId()), std::move(value));
 				auto ID = _list.back().GetObjectID();
 				_additionOrder.push_back(ID);
-				return ID;
+				return IDObject<T>(ID, _vectorID);
 			}
 		}
 	}
@@ -102,20 +102,20 @@ public:
 		if (!_deletedList.empty())
 		{
 			size_t pos = _deletedList.back();
-			_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), value);
+			_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), value);
 			_deletedList.pop_back();
 			auto ID = _list[pos].GetObjectID();
 			_additionOrder.push_back(ID);
-			return ID;
+			return IDObject<T>(ID, _vectorID);
 		}
 		else
 		{
 			CheckCapacity(addOnReserve);
 
-			_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), value);
+			_list.emplace_back(IDSubobject<T>(GetNextId()), value);
 			auto ID = _list.back().GetObjectID();
 			_additionOrder.push_back(ID);
-			return ID;
+			return IDObject<T>(ID, _vectorID);
 		}
 	}
 
@@ -124,26 +124,29 @@ public:
 		if (!_deletedList.empty())
 		{
 			size_t pos = _deletedList.back();
-			_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), std::move(value));
+			_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), std::move(value));
 			_deletedList.pop_back();
 			auto ID = _list[pos].GetObjectID();
 			_additionOrder.push_back(ID);
-			return ID;
+			return IDObject<T>(ID, _vectorID);
 		}
 		else
 		{
 			CheckCapacity(addOnReserve);
 
-			_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), std::move(value));
+			_list.emplace_back(IDSubobject<T>(GetNextId()), std::move(value));
 			auto ID = _list.back().GetObjectID();
 			_additionOrder.push_back(ID);
-			return ID;
+			return IDObject<T>(ID, _vectorID);
 		}
 	}
 
 	bool RemoveObject(IDObject<T> objectID, bool throwOnIDNotFound)
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("OrderIndependentDeletionStack RemoveObject Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.cend())
 		{
@@ -160,7 +163,7 @@ public:
 				_deletedList.push_back(static_cast<size_t>(std::distance(_list.begin(), it)));
 			}
 
-			auto orderIt = std::find(_additionOrder.begin(), _additionOrder.end(), objectID);
+			auto orderIt = std::find(_additionOrder.begin(), _additionOrder.end(), objectID.GetObjectID());
 
 			if (orderIt != _additionOrder.cend())
 			{
@@ -333,7 +336,7 @@ private:
 	IDType _vectorID;
 	std::vector<CommonVectorObject<T>> _list;
 	std::vector<size_t> _deletedList;
-	std::vector<IDObject<T>> _additionOrder;
+	std::vector<IDSubobject<T>> _additionOrder;
 	char _padding[16 - (((sizeof(_additionOrder) * 3) + (sizeof(_nextID) << 1)) % 8)];
 
 	static IDType _nextVectorID;

@@ -35,11 +35,11 @@ export template<class T>
 class CommonVectorObject
 {
 public:
-	CommonVectorObject(const IDObject<T>& objectID, const T& object) : _objectID(objectID), _object(object)
+	CommonVectorObject(const IDSubobject<T>& objectID, const T& object) : _objectID(objectID), _object(object)
 	{
 	}
 
-	CommonVectorObject(const IDObject<T>& objectID, T&& object) noexcept : _objectID(objectID), _object(std::move(object))
+	CommonVectorObject(const IDSubobject<T>& objectID, T&& object) noexcept : _objectID(objectID), _object(std::move(object))
 	{
 	}
 
@@ -63,7 +63,7 @@ public:
 		_object = std::move(other._object);
 	}
 
-	void ReplaceValue(const IDObject<T>& objectID, const T& object)
+	void ReplaceValue(const IDSubobject<T>& objectID, const T& object)
 	{
 		if (_object.has_value())
 			throw std::runtime_error("ListObjectTemplate Error: Program tried to replace existing value with const object!");
@@ -72,16 +72,16 @@ public:
 		_objectID = objectID;
 	}
 
-	void ReplaceValue(const IDObject<T>& objectID, T&& object)
+	void ReplaceValue(const IDSubobject<T>& objectID, T&& object)
 	{
 		if (_object.has_value())
-			throw std::runtime_error("ListObjectTemplate Error: Program tried to replace existing value with moved object!");
+			throw std::runtime_error("ListObjectTemplate Error: Program tried to replace existing value with non const object!");
 
 		_object = std::move(object);
 		_objectID = objectID;
 	}
 
-	IDObject<T> GetObjectID() const { return _objectID; }
+	IDSubobject<T> GetObjectID() const { return _objectID; }
 
 	std::optional<T>& GetObjectOptional() { return _object; }
 	const std::optional<T>& GetConstObjectOptional() const { return _object; }
@@ -96,7 +96,7 @@ public:
 	void DeleteObject() { _object.reset(); }
 
 	bool operator==(bool has_value) const { return _object.has_value() == has_value; }
-	bool operator==(const IDObject<T>& ID) const { return ID == _objectID; }
+	bool operator==(const IDSubobject<T>& ID) const { return ID == _objectID; }
 
 	template <class U>
 		requires (is_three_way_comparable<T, U>)
@@ -125,7 +125,7 @@ public:
 	bool operator==(const std::optional<T>& other) const noexcept { return _object == other; };
 
 private:
-	IDObject<T> _objectID;
+	IDSubobject<T> _objectID;
 	std::optional<T> _object;
 	char _padding[16 - (sizeof(_object) % 8)];
 };

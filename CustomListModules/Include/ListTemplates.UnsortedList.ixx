@@ -42,23 +42,23 @@ public:
 
 		if (found != _list.cend())
 		{
-			return found->GetObjectID();
+			return IDObject<T>(found->GetObjectID(), _vectorID);
 		}
 		else
 		{
 			if (!_deletedList.empty())
 			{
 				size_t pos = _deletedList.back();
-				_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), value);
+				_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), value);
 				_deletedList.pop_back();
-				return _list[pos].GetObjectID();
+				return IDObject<T>(_list[pos].GetObjectID(), _vectorID);
 			}
 			else
 			{
 				CheckCapacity(addOnReserve);
 
-				_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), value);
-				return _list.back().GetObjectID();
+				_list.emplace_back(IDSubobject<T>(GetNextId()), value);
+				return IDObject<T>(_list.back().GetObjectID(), _vectorID);
 			}
 		}
 	}
@@ -69,23 +69,23 @@ public:
 
 		if (found != _list.cend())
 		{
-			return found->GetObjectID();
+			return IDObject<T>(found->GetObjectID(), _vectorID);
 		}
 		else
 		{
 			if (!_deletedList.empty())
 			{
 				size_t pos = _deletedList.back();
-				_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), std::move(value));
+				_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), std::move(value));
 				_deletedList.pop_back();
-				return _list[pos].GetObjectID();
+				return IDObject<T>(_list[pos].GetObjectID(), _vectorID);
 			}
 			else
 			{
 				CheckCapacity(addOnReserve);
 
-				_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), std::move(value));
-				return _list.back().GetObjectID();
+				_list.emplace_back(IDSubobject<T>(GetNextId()), std::move(value));
+				return IDObject<T>(_list.back().GetObjectID(), _vectorID);
 			}
 		}
 	}
@@ -95,16 +95,16 @@ public:
 		if (!_deletedList.empty())
 		{
 			size_t pos = _deletedList.back();
-			_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), value);
+			_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), value);
 			_deletedList.pop_back();
-			return _list[pos].GetObjectID();
+			return IDObject<T>(_list[pos].GetObjectID(), _vectorID);
 		}
 		else
 		{
 			CheckCapacity(addOnReserve);
 
-			_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), value);
-			return _list.back().GetObjectID();
+			_list.emplace_back(IDSubobject<T>(GetNextId()), value);
+			return IDObject<T>(_list.back().GetObjectID(), _vectorID);
 		}
 	}
 
@@ -113,22 +113,25 @@ public:
 		if (!_deletedList.empty())
 		{
 			size_t pos = _deletedList.back();
-			_list[pos].ReplaceValue(IDObject<T>(GetNextId(), _vectorID), std::move(value));
+			_list[pos].ReplaceValue(IDSubobject<T>(GetNextId()), std::move(value));
 			_deletedList.pop_back();
-			return _list[pos].GetObjectID();
+			return IDObject<T>(_list[pos].GetObjectID(), _vectorID);
 		}
 		else
 		{
 			CheckCapacity(addOnReserve);
 
-			_list.emplace_back(IDObject<T>(GetNextId(), _vectorID), std::move(value));
-			return _list.back().GetObjectID();
+			_list.emplace_back(IDSubobject<T>(GetNextId()), std::move(value));
+			return IDObject<T>(_list.back().GetObjectID(), _vectorID);
 		}
 	}
 
 	bool RemoveObject(IDObject<T> objectID, bool throwOnIDNotFound)
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList RemoveObject Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.cend())
 		{
@@ -246,9 +249,22 @@ public:
 		_deletedList.reserve(_list.capacity());
 	}
 
+	bool CheckForID(IDObject<T> objectID) const
+	{
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList CheckForID Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.cbegin(), _list.cend(), objectID.GetObjectID());
+
+		return it != _list.cend();
+	}
+
 	std::optional<T>& GetObjectOptional(IDObject<T> objectID)
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList GetObjectOptional Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.end())
 			throw std::runtime_error("UnsortedList GetObject Error: Program tried to get non-existent object!");
@@ -258,7 +274,10 @@ public:
 
 	const std::optional<T>& GetConstObjectOptional(IDObject<T> objectID) const
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList GetConstObjectOptional Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.end())
 			throw std::runtime_error("UnsortedList GetConstObject Error: Program tried to get non-existent object!");
@@ -268,7 +287,10 @@ public:
 
 	std::optional<T> GetObjectOptionalCopy(IDObject<T> objectID) const
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList GetObjectOptionalCopy Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.end())
 			throw std::runtime_error("UnsortedList GetObjectCopy Error: Program tried to get non-existent object!");
@@ -285,7 +307,10 @@ public:
 		{
 			for (size_t j = 0; j < IDList.size(); ++j)
 			{
-				if (_list[i] == IDList[j])
+				if (IDList[j].GetVectorID() != _vectorID)
+					throw std::runtime_error("UnsortedList GetObjectOptionalList Error: Program tried to user an ID from another instance of this list!");
+
+				if (_list[i] == IDList[j].GetObjectID())
 				{
 					ret.push_back(_list[i].GetObjectOptionalCopy());
 
@@ -303,7 +328,10 @@ public:
 
 	T& GetObject(IDObject<T> objectID)
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList GetObject Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.end())
 			throw std::runtime_error("UnsortedList GetObject Error: Program tried to get non-existent object!");
@@ -313,7 +341,10 @@ public:
 
 	const T& GetConstObject(IDObject<T> objectID) const
 	{
-		auto it = std::find(_list.cbegin(), _list.cend(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList GetConstObject Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.cbegin(), _list.cend(), objectID.GetObjectID());
 
 		if (it == _list.cend())
 			throw std::runtime_error("UnsortedList GetObject Error: Program tried to get non-existent object!");
@@ -323,7 +354,10 @@ public:
 
 	T GetObjectCopy(IDObject<T> objectID) const
 	{
-		auto it = std::find(_list.begin(), _list.end(), objectID);
+		if (objectID.GetVectorID() != _vectorID)
+			throw std::runtime_error("UnsortedList GetObjectCopy Error: Program tried to user an ID from another instance of this list!");
+
+		auto it = std::find(_list.begin(), _list.end(), objectID.GetObjectID());
 
 		if (it == _list.end())
 			throw std::runtime_error("UnsortedList GetObject Error: Program tried to get non-existent object!");
@@ -340,7 +374,10 @@ public:
 		{
 			for (size_t j = 0; j < IDList.size(); ++j)
 			{
-				if (_list[i] == IDList[j])
+				if (IDList[j].GetVectorID() != _vectorID)
+					throw std::runtime_error("UnsortedList GetObjectList Error: Program tried to user an ID from another instance of this list!");
+
+				if (_list[i] == IDList[j].GetObjectID())
 				{
 					ret.push_back(_list[i].GetObjectCopy());
 
