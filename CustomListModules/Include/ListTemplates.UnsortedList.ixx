@@ -298,7 +298,7 @@ public:
 		return it->GetObjectOptionalCopy();
 	}
 
-	std::vector<std::optional<T>> GetObjectOptionalList(std::vector<IDObject<T>> IDList) const
+	std::vector<std::optional<T>> GetObjectOptionalList(const std::vector<IDObject<T>>& IDList) const
 	{
 		std::vector<std::optional<T>> ret;
 		ret.reserve(IDList.size());
@@ -365,7 +365,7 @@ public:
 		return it->GetObjectCopy();
 	}
 
-	std::vector<T> GetObjectList(std::vector<IDObject<T>> IDList) const
+	std::vector<T> GetObjectList(const std::vector<IDObject<T>>& IDList) const
 	{
 		std::vector<T> ret;
 		ret.reserve(IDList.size());

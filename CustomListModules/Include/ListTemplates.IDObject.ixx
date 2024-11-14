@@ -46,8 +46,8 @@ public:
 	IDObject<T>& operator=(const IDObject<T>& other) = default;
 	IDObject<T>& operator=(IDObject<T>&&) noexcept = default;
 
-	bool operator==(const IDObject<T>&) const noexcept = delete;
-	std::strong_ordering operator<=>(const IDObject<T>&) const noexcept = delete;
+	bool operator==(const IDObject<T>&) const noexcept = default;
+	std::strong_ordering operator<=>(const IDObject<T>&) const noexcept = default;
 
 	const IDSubobject<T>& GetObjectID() const { return _objectID; }
 	const IDSubobject<T>& GetVectorID() const { return _vectorID; }
