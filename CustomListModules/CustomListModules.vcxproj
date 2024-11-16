@@ -62,6 +62,7 @@
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
       <DisableSpecificWarnings>4514;4710;4711;5045</DisableSpecificWarnings>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -81,6 +82,7 @@
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
       <DisableSpecificWarnings>4514;4710;4711;5045</DisableSpecificWarnings>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
